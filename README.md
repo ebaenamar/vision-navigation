@@ -2,7 +2,7 @@
 
 **Visual Inference System for Intelligent Orbital Navigation**
 
-Code and results for the paper *"V.I.S.I.O.N.: Visual Inference System for Intelligent Orbital Navigation — Can Low-Cost, Camera-Based Navigation Replace GPS, from Orbit to the Ground?"* by Shivenn Gupta.
+Code and results for the paper *"V.I.S.I.O.N.: Visual Inference System for Intelligent Orbital Navigation — A Cross-Domain Architecture for GPS-Denied Navigation, with Component-Level Evaluation from Orbit to the Ground"* by Shivenn Gupta.
 
 The project evaluates whether low-cost visual and celestial navigation components can provide useful position and orientation where GPS is unavailable, in space and on Earth. Every table and figure in the paper is produced by the scripts below from a fixed random seed.
 
