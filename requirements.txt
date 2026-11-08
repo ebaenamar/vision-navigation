@@ -1,0 +1,10 @@
+numpy
+scipy
+matplotlib
+pandas
+skyfield
+astroquery
+tqdm
+opencv-python
+torch
+lightglue @ git+https://github.com/cvg/LightGlue.git
