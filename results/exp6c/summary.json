@@ -1,0 +1,578 @@
+{
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=1|0.1": {
+  "threshold_m": 144.91012369787438,
+  "median_t_s": Infinity,
+  "p95_t_s": NaN,
+  "median_offset_m": Infinity,
+  "p95_offset_m": NaN,
+  "detected_by_120s_pct": 2.8000000000000003
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=1|0.25": {
+  "threshold_m": 144.91012369787438,
+  "median_t_s": 520.0,
+  "p95_t_s": 580.4999999999995,
+  "median_offset_m": 130.0,
+  "p95_offset_m": 145.1249999999999,
+  "detected_by_120s_pct": 3.1
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=1|0.5": {
+  "threshold_m": 144.91012369787438,
+  "median_t_s": 280.0,
+  "p95_t_s": 310.0,
+  "median_offset_m": 140.0,
+  "p95_offset_m": 155.0,
+  "detected_by_120s_pct": 2.5
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=1|1.0": {
+  "threshold_m": 144.91012369787438,
+  "median_t_s": 150.0,
+  "p95_t_s": 160.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 160.0,
+  "detected_by_120s_pct": 12.3
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=1|2.0": {
+  "threshold_m": 144.91012369787438,
+  "median_t_s": 80.0,
+  "p95_t_s": 90.0,
+  "median_offset_m": 160.0,
+  "p95_offset_m": 180.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=1|5.0": {
+  "threshold_m": 144.91012369787438,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 200.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=3|0.1": {
+  "threshold_m": 55.61782516770242,
+  "median_t_s": 490.0,
+  "p95_t_s": 580.0,
+  "median_offset_m": 49.0,
+  "p95_offset_m": 58.0,
+  "detected_by_120s_pct": 2.0
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=3|0.25": {
+  "threshold_m": 55.61782516770242,
+  "median_t_s": 220.0,
+  "p95_t_s": 270.0,
+  "median_offset_m": 55.0,
+  "p95_offset_m": 67.5,
+  "detected_by_120s_pct": 3.4000000000000004
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=3|0.5": {
+  "threshold_m": 55.61782516770242,
+  "median_t_s": 120.0,
+  "p95_t_s": 150.0,
+  "median_offset_m": 60.0,
+  "p95_offset_m": 75.0,
+  "detected_by_120s_pct": 55.00000000000001
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=3|1.0": {
+  "threshold_m": 55.61782516770242,
+  "median_t_s": 70.0,
+  "p95_t_s": 90.0,
+  "median_offset_m": 70.0,
+  "p95_offset_m": 90.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=3|2.0": {
+  "threshold_m": 55.61782516770242,
+  "median_t_s": 40.0,
+  "p95_t_s": 50.0,
+  "median_offset_m": 80.0,
+  "p95_offset_m": 100.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=3|5.0": {
+  "threshold_m": 55.61782516770242,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 200.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=6|0.1": {
+  "threshold_m": 32.376822667870044,
+  "median_t_s": 320.0,
+  "p95_t_s": 410.0,
+  "median_offset_m": 32.0,
+  "p95_offset_m": 41.0,
+  "detected_by_120s_pct": 2.1
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=6|0.25": {
+  "threshold_m": 32.376822667870044,
+  "median_t_s": 160.0,
+  "p95_t_s": 200.0,
+  "median_offset_m": 40.0,
+  "p95_offset_m": 50.0,
+  "detected_by_120s_pct": 12.1
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=6|0.5": {
+  "threshold_m": 32.376822667870044,
+  "median_t_s": 100.0,
+  "p95_t_s": 120.0,
+  "median_offset_m": 50.0,
+  "p95_offset_m": 60.0,
+  "detected_by_120s_pct": 96.5
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=6|1.0": {
+  "threshold_m": 32.376822667870044,
+  "median_t_s": 70.0,
+  "p95_t_s": 80.0,
+  "median_offset_m": 70.0,
+  "p95_offset_m": 80.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=6|2.0": {
+  "threshold_m": 32.376822667870044,
+  "median_t_s": 50.0,
+  "p95_t_s": 60.0,
+  "median_offset_m": 100.0,
+  "p95_offset_m": 120.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 6-DOF PnP (paper)|N=6|5.0": {
+  "threshold_m": 32.376822667870044,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 200.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=1|0.1": {
+  "threshold_m": 24.828973999320766,
+  "median_t_s": 170.0,
+  "p95_t_s": 230.0,
+  "median_offset_m": 17.0,
+  "p95_offset_m": 23.0,
+  "detected_by_120s_pct": 17.4
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=1|0.25": {
+  "threshold_m": 24.828973999320766,
+  "median_t_s": 80.0,
+  "p95_t_s": 110.0,
+  "median_offset_m": 20.0,
+  "p95_offset_m": 27.5,
+  "detected_by_120s_pct": 98.9
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=1|0.5": {
+  "threshold_m": 24.828973999320766,
+  "median_t_s": 50.0,
+  "p95_t_s": 70.0,
+  "median_offset_m": 25.0,
+  "p95_offset_m": 35.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=1|1.0": {
+  "threshold_m": 24.828973999320766,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 30.0,
+  "p95_offset_m": 40.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=1|2.0": {
+  "threshold_m": 24.828973999320766,
+  "median_t_s": 20.0,
+  "p95_t_s": 30.0,
+  "median_offset_m": 40.0,
+  "p95_offset_m": 60.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=1|5.0": {
+  "threshold_m": 24.828973999320766,
+  "median_t_s": 10.0,
+  "p95_t_s": 20.0,
+  "median_offset_m": 50.0,
+  "p95_offset_m": 100.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=3|0.1": {
+  "threshold_m": 14.081556503032441,
+  "median_t_s": 130.0,
+  "p95_t_s": 180.0,
+  "median_offset_m": 13.0,
+  "p95_offset_m": 18.0,
+  "detected_by_120s_pct": 43.1
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=3|0.25": {
+  "threshold_m": 14.081556503032441,
+  "median_t_s": 70.0,
+  "p95_t_s": 90.0,
+  "median_offset_m": 17.5,
+  "p95_offset_m": 22.5,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=3|0.5": {
+  "threshold_m": 14.081556503032441,
+  "median_t_s": 40.0,
+  "p95_t_s": 60.0,
+  "median_offset_m": 20.0,
+  "p95_offset_m": 30.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=3|1.0": {
+  "threshold_m": 14.081556503032441,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 30.0,
+  "p95_offset_m": 40.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=3|2.0": {
+  "threshold_m": 14.081556503032441,
+  "median_t_s": 20.0,
+  "p95_t_s": 30.0,
+  "median_offset_m": 40.0,
+  "p95_offset_m": 60.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=3|5.0": {
+  "threshold_m": 14.081556503032441,
+  "median_t_s": 10.0,
+  "p95_t_s": 20.0,
+  "median_offset_m": 50.0,
+  "p95_offset_m": 100.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=6|0.1": {
+  "threshold_m": 9.926127396505441,
+  "median_t_s": 120.0,
+  "p95_t_s": 170.0,
+  "median_offset_m": 12.0,
+  "p95_offset_m": 17.0,
+  "detected_by_120s_pct": 52.6
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=6|0.25": {
+  "threshold_m": 9.926127396505441,
+  "median_t_s": 70.0,
+  "p95_t_s": 90.0,
+  "median_offset_m": 17.5,
+  "p95_offset_m": 22.5,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=6|0.5": {
+  "threshold_m": 9.926127396505441,
+  "median_t_s": 50.0,
+  "p95_t_s": 70.0,
+  "median_offset_m": 25.0,
+  "p95_offset_m": 35.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=6|1.0": {
+  "threshold_m": 9.926127396505441,
+  "median_t_s": 40.0,
+  "p95_t_s": 50.0,
+  "median_offset_m": 40.0,
+  "p95_offset_m": 50.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=6|2.0": {
+  "threshold_m": 9.926127396505441,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 60.0,
+  "p95_offset_m": 80.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "UAV-VisLoc, 4-DOF gravity only (onboard tilt)|N=6|5.0": {
+  "threshold_m": 9.926127396505441,
+  "median_t_s": 20.0,
+  "p95_t_s": 30.0,
+  "median_offset_m": 100.0,
+  "p95_offset_m": 150.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=1|0.1": {
+  "threshold_m": 191.81626902013363,
+  "median_t_s": Infinity,
+  "p95_t_s": NaN,
+  "median_offset_m": Infinity,
+  "p95_offset_m": NaN,
+  "detected_by_120s_pct": 3.9
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=1|0.25": {
+  "threshold_m": 191.81626902013363,
+  "median_t_s": 750.0,
+  "p95_t_s": 780.0,
+  "median_offset_m": 187.5,
+  "p95_offset_m": 195.0,
+  "detected_by_120s_pct": 3.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=1|0.5": {
+  "threshold_m": 191.81626902013363,
+  "median_t_s": 390.0,
+  "p95_t_s": 400.0,
+  "median_offset_m": 195.0,
+  "p95_offset_m": 200.0,
+  "detected_by_120s_pct": 2.9000000000000004
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=1|1.0": {
+  "threshold_m": 191.81626902013363,
+  "median_t_s": 200.0,
+  "p95_t_s": 210.0,
+  "median_offset_m": 200.0,
+  "p95_offset_m": 210.0,
+  "detected_by_120s_pct": 3.6999999999999997
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=1|2.0": {
+  "threshold_m": 191.81626902013363,
+  "median_t_s": 100.0,
+  "p95_t_s": 110.0,
+  "median_offset_m": 200.0,
+  "p95_offset_m": 220.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=1|5.0": {
+  "threshold_m": 191.81626902013363,
+  "median_t_s": 40.0,
+  "p95_t_s": 50.0,
+  "median_offset_m": 200.0,
+  "p95_offset_m": 250.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=3|0.1": {
+  "threshold_m": 68.39261324731514,
+  "median_t_s": 680.0,
+  "p95_t_s": 720.0,
+  "median_offset_m": 68.0,
+  "p95_offset_m": 72.0,
+  "detected_by_120s_pct": 3.1
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=3|0.25": {
+  "threshold_m": 68.39261324731514,
+  "median_t_s": 290.0,
+  "p95_t_s": 310.0,
+  "median_offset_m": 72.5,
+  "p95_offset_m": 77.5,
+  "detected_by_120s_pct": 2.5
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=3|0.5": {
+  "threshold_m": 68.39261324731514,
+  "median_t_s": 150.0,
+  "p95_t_s": 160.0,
+  "median_offset_m": 75.0,
+  "p95_offset_m": 80.0,
+  "detected_by_120s_pct": 5.2
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=3|1.0": {
+  "threshold_m": 68.39261324731514,
+  "median_t_s": 80.0,
+  "p95_t_s": 90.0,
+  "median_offset_m": 80.0,
+  "p95_offset_m": 90.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=3|2.0": {
+  "threshold_m": 68.39261324731514,
+  "median_t_s": 50.0,
+  "p95_t_s": 60.0,
+  "median_offset_m": 100.0,
+  "p95_offset_m": 120.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=3|5.0": {
+  "threshold_m": 68.39261324731514,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 200.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=6|0.1": {
+  "threshold_m": 36.22072901038209,
+  "median_t_s": 390.0,
+  "p95_t_s": 430.0,
+  "median_offset_m": 39.0,
+  "p95_offset_m": 43.0,
+  "detected_by_120s_pct": 1.7000000000000002
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=6|0.25": {
+  "threshold_m": 36.22072901038209,
+  "median_t_s": 170.0,
+  "p95_t_s": 200.0,
+  "median_offset_m": 42.5,
+  "p95_offset_m": 50.0,
+  "detected_by_120s_pct": 3.9
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=6|0.5": {
+  "threshold_m": 36.22072901038209,
+  "median_t_s": 100.0,
+  "p95_t_s": 110.0,
+  "median_offset_m": 50.0,
+  "p95_offset_m": 55.0,
+  "detected_by_120s_pct": 99.3
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=6|1.0": {
+  "threshold_m": 36.22072901038209,
+  "median_t_s": 70.0,
+  "p95_t_s": 80.0,
+  "median_offset_m": 70.0,
+  "p95_offset_m": 80.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=6|2.0": {
+  "threshold_m": 36.22072901038209,
+  "median_t_s": 50.0,
+  "p95_t_s": 60.0,
+  "median_offset_m": 100.0,
+  "p95_offset_m": 120.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 6-DOF PnP (paper)|N=6|5.0": {
+  "threshold_m": 36.22072901038209,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 200.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=1|0.1": {
+  "threshold_m": 124.95471162828564,
+  "median_t_s": Infinity,
+  "p95_t_s": NaN,
+  "median_offset_m": Infinity,
+  "p95_offset_m": NaN,
+  "detected_by_120s_pct": 3.4000000000000004
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=1|0.25": {
+  "threshold_m": 124.95471162828564,
+  "median_t_s": 500.0,
+  "p95_t_s": 520.0,
+  "median_offset_m": 125.0,
+  "p95_offset_m": 130.0,
+  "detected_by_120s_pct": 4.3999999999999995
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=1|0.5": {
+  "threshold_m": 124.95471162828564,
+  "median_t_s": 250.0,
+  "p95_t_s": 270.0,
+  "median_offset_m": 125.0,
+  "p95_offset_m": 135.0,
+  "detected_by_120s_pct": 3.9
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=1|1.0": {
+  "threshold_m": 124.95471162828564,
+  "median_t_s": 130.0,
+  "p95_t_s": 140.0,
+  "median_offset_m": 130.0,
+  "p95_offset_m": 140.0,
+  "detected_by_120s_pct": 12.2
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=1|2.0": {
+  "threshold_m": 124.95471162828564,
+  "median_t_s": 70.0,
+  "p95_t_s": 70.0,
+  "median_offset_m": 140.0,
+  "p95_offset_m": 140.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=1|5.0": {
+  "threshold_m": 124.95471162828564,
+  "median_t_s": 30.0,
+  "p95_t_s": 30.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 150.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=3|0.1": {
+  "threshold_m": 90.74372360916637,
+  "median_t_s": Infinity,
+  "p95_t_s": NaN,
+  "median_offset_m": Infinity,
+  "p95_offset_m": NaN,
+  "detected_by_120s_pct": 2.7
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=3|0.25": {
+  "threshold_m": 90.74372360916637,
+  "median_t_s": 380.0,
+  "p95_t_s": 390.0,
+  "median_offset_m": 95.0,
+  "p95_offset_m": 97.5,
+  "detected_by_120s_pct": 1.7999999999999998
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=3|0.5": {
+  "threshold_m": 90.74372360916637,
+  "median_t_s": 200.0,
+  "p95_t_s": 210.0,
+  "median_offset_m": 100.0,
+  "p95_offset_m": 105.0,
+  "detected_by_120s_pct": 1.6
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=3|1.0": {
+  "threshold_m": 90.74372360916637,
+  "median_t_s": 110.0,
+  "p95_t_s": 110.0,
+  "median_offset_m": 110.0,
+  "p95_offset_m": 110.0,
+  "detected_by_120s_pct": 99.6
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=3|2.0": {
+  "threshold_m": 90.74372360916637,
+  "median_t_s": 60.0,
+  "p95_t_s": 70.0,
+  "median_offset_m": 120.0,
+  "p95_offset_m": 140.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=3|5.0": {
+  "threshold_m": 90.74372360916637,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 200.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=6|0.1": {
+  "threshold_m": 46.38945538255175,
+  "median_t_s": 490.0,
+  "p95_t_s": 520.0,
+  "median_offset_m": 49.0,
+  "p95_offset_m": 52.0,
+  "detected_by_120s_pct": 1.7000000000000002
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=6|0.25": {
+  "threshold_m": 46.38945538255175,
+  "median_t_s": 220.0,
+  "p95_t_s": 230.0,
+  "median_offset_m": 55.0,
+  "p95_offset_m": 57.5,
+  "detected_by_120s_pct": 2.4
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=6|0.5": {
+  "threshold_m": 46.38945538255175,
+  "median_t_s": 120.0,
+  "p95_t_s": 130.0,
+  "median_offset_m": 60.0,
+  "p95_offset_m": 65.0,
+  "detected_by_120s_pct": 68.8
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=6|1.0": {
+  "threshold_m": 46.38945538255175,
+  "median_t_s": 80.0,
+  "p95_t_s": 90.0,
+  "median_offset_m": 80.0,
+  "p95_offset_m": 90.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=6|2.0": {
+  "threshold_m": 46.38945538255175,
+  "median_t_s": 50.0,
+  "p95_t_s": 60.0,
+  "median_offset_m": 100.0,
+  "p95_offset_m": 120.0,
+  "detected_by_120s_pct": 100.0
+ },
+ "VPAIR, 4-DOF gravity only (0.1 deg tilt)|N=6|5.0": {
+  "threshold_m": 46.38945538255175,
+  "median_t_s": 30.0,
+  "p95_t_s": 40.0,
+  "median_offset_m": 150.0,
+  "p95_offset_m": 200.0,
+  "detected_by_120s_pct": 100.0
+ }
+}

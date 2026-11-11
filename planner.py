@@ -69,17 +69,41 @@ GRID = 40             # 40 x 40 cells = 20 x 20 km
 MAX_EXTRA = 0.15      # C7 length limit
 
 
+SIGMA_BIAS = 0.0      # m/s^2, constant accelerometer bias per flight (1 sigma, per axis);
+                      # 0 reproduces the original paper. Set with --accel-bias-mg.
+
+
 def transition(dt):
-    F1 = np.array([[1.0, dt], [0.0, 1.0]])
-    Q1 = SIGMA_ACC ** 2 * np.array([[dt ** 3 / 3, dt ** 2 / 2], [dt ** 2 / 2, dt]])
-    F = np.kron(F1, np.eye(2))      # state [px, py, vx, vy]
+    """Error state [px, py, vx, vy, bx, by]: position, velocity and a constant
+    accelerometer bias that drives the velocity error (estimated by the filter)."""
+    F1 = np.array([[1.0, dt, 0.5 * dt ** 2], [0.0, 1.0, dt], [0.0, 0.0, 1.0]])
+    Q1 = SIGMA_ACC ** 2 * np.array([[dt ** 3 / 3, dt ** 2 / 2, 0.0],
+                                    [dt ** 2 / 2, dt, 0.0],
+                                    [0.0, 0.0, 1e-12]])
+    F = np.kron(F1, np.eye(2))      # state [px, py, vx, vy, bx, by]
     Q = np.kron(Q1, np.eye(2))
     return F, Q
 
 
-F, Q = transition(FIX_DT)
-H = np.hstack([np.eye(2), np.zeros((2, 2))])
-P0 = np.diag([SIGMA_P0 ** 2] * 2 + [SIGMA_V0 ** 2] * 2)
+def transition_pv(dt):
+    """Original 4-state [px, py, vx, vy] model (no accelerometer bias)."""
+    F1 = np.array([[1.0, dt], [0.0, 1.0]])
+    Q1 = SIGMA_ACC ** 2 * np.array([[dt ** 3 / 3, dt ** 2 / 2], [dt ** 2 / 2, dt]])
+    return np.kron(F1, np.eye(2)), np.kron(Q1, np.eye(2))
+
+
+def setup(sigma_bias):
+    """sigma_bias = 0 keeps the original 4-state model exactly (bit-for-bit
+    reproduction of the paper); > 0 adds the estimated bias states."""
+    global SIGMA_BIAS, F, Q, H, P0, NX
+    SIGMA_BIAS = sigma_bias
+    F, Q = transition(FIX_DT) if sigma_bias > 0 else transition_pv(FIX_DT)
+    NX = F.shape[0]
+    H = np.hstack([np.eye(2), np.zeros((2, NX - 2))])
+    P0 = np.diag(([SIGMA_P0 ** 2] * 2 + [SIGMA_V0 ** 2] * 2 + [SIGMA_BIAS ** 2] * 2)[:NX])
+
+
+setup(0.0)
 
 
 # ---------------------------------------------------------------------------
@@ -166,7 +190,7 @@ def predicted_final_sigma(cls_seq):
             R = sigma ** 2 * np.eye(2)
             S = H @ P @ H.T + R
             K = P @ H.T @ np.linalg.inv(S)
-            P = (np.eye(4) - K @ H) @ P
+            P = (np.eye(NX) - K @ H) @ P
     return float(np.sqrt(np.trace(P[:2, :2])))
 
 
@@ -178,16 +202,16 @@ def fly(cls_seq, rng, n_runs, integrity):
     Simulates the true navigation error e and the filter covariance P;
     after an update, e <- (I - K H) e + K n, where n is the fix error."""
     N = n_runs
-    e = rng.multivariate_normal(np.zeros(4), P0, size=N)          # (N,4)
+    e = rng.multivariate_normal(np.zeros(NX), P0, size=N)         # (N,NX)
     P = np.repeat(P0[None], N, axis=0)                           # (N,4,4)
     LQ = np.linalg.cholesky(Q)
     counts = dict(missed=0, correct_accepted=0, correct_rejected=0,
                   false_accepted=0, false_rejected=0)
-    I4 = np.eye(4)
+    I4 = np.eye(NX)
     worst = np.zeros(N)
     consec = np.zeros(N, dtype=int)
     for step, c in enumerate(cls_seq[1:], start=1):
-        e = e @ F.T + rng.normal(size=(N, 4)) @ LQ.T
+        e = e @ F.T + rng.normal(size=(N, NX)) @ LQ.T
         P = F @ P @ F.T + Q
         p, f, sigma = class_params(c)
         got = rng.random(N) < p
@@ -322,7 +346,11 @@ def main():
     ap.add_argument("--out", default="results")
     ap.add_argument("--seed", type=int, default=6)
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--accel-bias-mg", type=float, default=0.0,
+                    help="constant accelerometer bias per flight, 1 sigma per axis (milli-g); "
+                         "0 = original paper model")
     a = ap.parse_args()
+    setup(a.accel_bias_mg * 9.80665e-3)
     if a.quick:
         a.maps, a.runs = 20, 20
     os.makedirs(a.out, exist_ok=True)
@@ -355,6 +383,7 @@ def main():
         L.append("> Test run with reduced maps and flights. Do not report.\n")
     L += [f"{a.maps} random 20 × 20 km maps per condition; {a.runs} Monte Carlo flights per route; "
           f"speed {SPEED} m/s; fix attempt every {FIX_DT:.0f} s; accelerometer noise {SIGMA_ACC} m/s²; "
+          f"accelerometer bias {a.accel_bias_mg} mg (1σ per axis, estimated by the filter); "
           f"routes limited to {int(MAX_EXTRA * 100)}% longer than the shortest.", "",
           "## Final horizontal position error", "",
           "| Condition | Integrity monitor | Shortest route, median (m) | Navigability-aware, median (m) | Improvement (%) | Shortest, 95th pct (m) | Navigability-aware, 95th pct (m) | Mean extra length (%) | Maps where route changed (%) | Maps where planner was better (%) |",

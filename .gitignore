@@ -1,0 +1,17 @@
+*.bsp
+*.log
+*.npz
+*.pyc
+*.zip
+.DS_Store
+.venv/
+__pycache__/
+hipparcos_mag7.csv
+results_quick/
+tetra3_repo
+visloc/
+vpair-main/
+vpair_raw/
+vpair_sample
+vpair_sample.zip
+vpair_sample/

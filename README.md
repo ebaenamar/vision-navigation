@@ -18,6 +18,10 @@ The project evaluates whether low-cost visual and celestial navigation component
 | `planner.py` | Experiment 6: navigability-aware planning and integrity monitor | `results/exp6.md`, example maps |
 | `vision_mission_sim.py` | Demonstration trajectory simulator (not part of the evaluation) | — |
 
+## Review-revision experiments
+
+`REVIEW_FIXES.md` describes additional experiments added after an external review: validation on real night-sky images, realistic sensor models, attitude-aided map matching on VPAIR and UAV-VisLoc, a soft-gravity PnP with calibrated covariance, map-only navigability prediction and GNSS spoofing detection. It lists the datasets they need and the run order.
+
 ## Setup
 
 Python 3.12 is recommended.

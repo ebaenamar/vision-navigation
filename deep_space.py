@@ -87,10 +87,12 @@ def planet_position(name, t_days):
     return np.array([x, y, z]) * AU
 
 
-def hohmann_position(t_since_dep_days, dep_dir):
+def hohmann_position(t_since_dep_days, dep_dir, r1=None, r2=None):
     """Heliocentric position on an Earth(1 AU)-to-Mars(1.524 AU) Hohmann ellipse
-    starting at perihelion in direction dep_dir (ecliptic plane)."""
-    r1, r2 = 1.0 * AU, ELEMENTS["Mars"][0] * AU
+    starting at perihelion in direction dep_dir (ecliptic plane).
+    r1, r2 (km) override the radii (used by the phased option)."""
+    r1 = 1.0 * AU if r1 is None else r1
+    r2 = ELEMENTS["Mars"][0] * AU if r2 is None else r2
     a = 0.5 * (r1 + r2)
     e = (r2 - r1) / (r2 + r1)
     n = math.sqrt(MU_SUN / a ** 3)
@@ -98,8 +100,10 @@ def hohmann_position(t_since_dep_days, dep_dir):
     E = solve_kepler(M, e)
     nu = 2 * math.atan2(math.sqrt(1 + e) * math.sin(E / 2), math.sqrt(1 - e) * math.cos(E / 2))
     r = a * (1 - e * math.cos(E))
-    phi = math.atan2(dep_dir[1], dep_dir[0]) + nu
-    return np.array([r * math.cos(phi), r * math.sin(phi), 0.0]), math.pi / n / DAY
+    u1 = np.asarray(dep_dir, dtype=float) / np.linalg.norm(dep_dir)
+    u2 = np.cross([0.0, 0.0, 1.0], u1)               # prograde; equals the original for z = 0
+    u2 /= np.linalg.norm(u2)
+    return r * (math.cos(nu) * u1 + math.sin(nu) * u2), math.pi / n / DAY
 
 
 def pulsar_dirs_ecliptic():
@@ -171,18 +175,46 @@ def solve(bodies, u_meas, sig_b, pulsar_n, ranges, sig_x, x0, use_b, use_x, iter
     return x[:3]
 
 
-def run(sig_b_arcsec, sig_x_km, n_days_step, rng, prior_km=50_000.0, t0_days=9000.0):
-    """One pass along the transfer. Returns per-epoch errors (km) for each method."""
+def phased_departure(t_lo=9000.0, t_hi=9800.0):
+    """Departure day (after J2000) for which Mars is at the transfer's arrival
+    point, so the Mars approach phase is actually simulated (review revision)."""
+    # The arrival point is placed exactly at Mars; the departure point is the
+    # opposite apsis at Earth's distance, and the departure day is chosen to put
+    # it as close to Earth as possible (Mars's inclination prevents an exact
+    # coplanar Hohmann match at both ends).
+    best = None
+    for t0 in np.arange(t_lo, t_hi, 0.5):
+        e = planet_position("Earth", t0)
+        r1, r2 = np.linalg.norm(e), ELEMENTS["Mars"][0] * AU
+        for _ in range(6):
+            _, tof = hohmann_position(0, [1.0, 0, 0], r1, r2)
+            m = planet_position("Mars", t0 + tof)
+            r2 = np.linalg.norm(m)
+        u1 = -m / r2
+        dep_miss = np.linalg.norm(r1 * u1 - e)
+        if best is None or dep_miss < best[1]:
+            best = (t0, dep_miss, r1, r2, u1)
+    return best
+
+
+def run(sig_b_arcsec, sig_x_km, n_days_step, rng, prior_km=50_000.0, t0_days=9000.0,
+        min_body_km=0.0, radii=(None, None), dep_override=None):
+    """One pass along the transfer. Returns per-epoch errors (km) for each method.
+    min_body_km: skip epochs closer than this to any planet centre."""
     dep_dir = planet_position("Earth", t0_days)
     dep_dir = dep_dir / np.linalg.norm(dep_dir)
-    _, tof = hohmann_position(0, dep_dir)
+    if dep_override is not None:
+        dep_dir = dep_override
+    _, tof = hohmann_position(0, dep_dir, *radii)
     pulsar_n = pulsar_dirs_ecliptic()
     sig_b = sig_b_arcsec * ARCSEC
     rec = {"t": [], "planets": [], "xnav": [], "fused": [], "n_bodies": [], "nearest_au": []}
     for td in np.arange(1.0, tof, n_days_step):
         t = t0_days + td
-        r, _ = hohmann_position(td, dep_dir)
+        r, _ = hohmann_position(td, dep_dir, *radii)
         bodies = visible_bodies(r, t)
+        if bodies and min(np.linalg.norm(rp - r) for _, rp in bodies) < min_body_km:
+            continue
         u_meas = [noisy_unit((rp - r) / np.linalg.norm(rp - r), sig_b, rng) for _, rp in bodies]
         clock = rng.normal(0, 300.0)                         # c * clock offset, km
         ranges = [n @ r + clock + rng.normal(0, sig_x_km) for n in pulsar_n]
@@ -217,7 +249,16 @@ def main():
     ap.add_argument("--out", default="results")
     ap.add_argument("--seed", type=int, default=5)
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--phased", action="store_true",
+                    help="choose the departure so that Mars is at the arrival point (review revision)")
     a = ap.parse_args()
+    t0, min_body, radii, dep = 9000.0, 0.0, (None, None), None
+    if a.phased:
+        t0, miss, r1, r2, dep = phased_departure()
+        radii = (r1, r2)
+        min_body = 100_000.0     # stop fixes inside 100,000 km of a planet centre
+        print(f"Phased departure: day {t0:.1f} after J2000, departure point {miss:,.0f} km from Earth; "
+              "arrival exactly at Mars")
     if a.quick:
         a.passes = 3
     os.makedirs(a.out, exist_ok=True)
@@ -234,7 +275,7 @@ def main():
         acc = {m: [] for m in ("planets", "xnav", "fused")}
         nb = []
         for p in range(a.passes):
-            rec, tof = run(sb, sx, 1.0, rng)
+            rec, tof = run(sb, sx, 1.0, rng, t0_days=t0, min_body_km=min_body, radii=radii, dep_override=dep)
             for m in acc:
                 acc[m].append(rec[m])
             nb.append(rec["n_bodies"])

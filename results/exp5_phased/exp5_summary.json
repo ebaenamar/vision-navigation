@@ -1,0 +1,115 @@
+{
+  "transfer_days": 275.76421200455815,
+  "rows": [
+    {
+      "setting": "Nominal",
+      "sigma_bearing_arcsec": 13.4,
+      "sigma_pulsar_km": 5.0,
+      "planets": {
+        "availability_pct": 100.0,
+        "median_km": 10497.536158180825,
+        "p95_km": 52765.774032404544
+      },
+      "xnav": {
+        "availability_pct": 100.0,
+        "median_km": 15.144972122705772,
+        "p95_km": 39.156767097655624
+      },
+      "fused": {
+        "availability_pct": 100.0,
+        "median_km": 15.146919276825045,
+        "p95_km": 39.20655090328166
+      },
+      "fused_better_than_both_pct": 50.30909090909091,
+      "mean_visible_bodies": 3.556363636363636
+    },
+    {
+      "setting": "Better camera (5 arcsec)",
+      "sigma_bearing_arcsec": 5.0,
+      "sigma_pulsar_km": 5.0,
+      "planets": {
+        "availability_pct": 100.0,
+        "median_km": 3871.448570045477,
+        "p95_km": 20521.525368069073
+      },
+      "xnav": {
+        "availability_pct": 100.0,
+        "median_km": 15.008442498778384,
+        "p95_km": 39.18043043591264
+      },
+      "fused": {
+        "availability_pct": 100.0,
+        "median_km": 14.97746216335449,
+        "p95_km": 38.94935742341462
+      },
+      "fused_better_than_both_pct": 50.69090909090909,
+      "mean_visible_bodies": 3.556363636363636
+    },
+    {
+      "setting": "Worse camera (40 arcsec)",
+      "sigma_bearing_arcsec": 40.0,
+      "sigma_pulsar_km": 5.0,
+      "planets": {
+        "availability_pct": 100.0,
+        "median_km": 31182.9913072105,
+        "p95_km": 163447.28981453285
+      },
+      "xnav": {
+        "availability_pct": 100.0,
+        "median_km": 14.894929700320514,
+        "p95_km": 39.16115494554413
+      },
+      "fused": {
+        "availability_pct": 100.0,
+        "median_km": 14.873841733404701,
+        "p95_km": 39.161216037009844
+      },
+      "fused_better_than_both_pct": 50.89090909090908,
+      "mean_visible_bodies": 3.556363636363636
+    },
+    {
+      "setting": "Better XNAV (2 km)",
+      "sigma_bearing_arcsec": 13.4,
+      "sigma_pulsar_km": 2.0,
+      "planets": {
+        "availability_pct": 100.0,
+        "median_km": 10450.232699354707,
+        "p95_km": 53795.511897689474
+      },
+      "xnav": {
+        "availability_pct": 100.0,
+        "median_km": 5.971858056931088,
+        "p95_km": 15.651345621352968
+      },
+      "fused": {
+        "availability_pct": 100.0,
+        "median_km": 5.979331836677662,
+        "p95_km": 15.662956909082565
+      },
+      "fused_better_than_both_pct": 49.74545454545454,
+      "mean_visible_bodies": 3.556363636363636
+    },
+    {
+      "setting": "Worse XNAV (20 km)",
+      "sigma_bearing_arcsec": 13.4,
+      "sigma_pulsar_km": 20.0,
+      "planets": {
+        "availability_pct": 100.0,
+        "median_km": 10507.363967712921,
+        "p95_km": 55915.530897522054
+      },
+      "xnav": {
+        "availability_pct": 100.0,
+        "median_km": 60.03215261353128,
+        "p95_km": 157.04428063210938
+      },
+      "fused": {
+        "availability_pct": 100.0,
+        "median_km": 59.833552022698655,
+        "p95_km": 156.0916014351304
+      },
+      "fused_better_than_both_pct": 51.490909090909085,
+      "mean_visible_bodies": 3.556363636363636
+    }
+  ]
+}

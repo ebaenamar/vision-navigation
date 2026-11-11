@@ -81,6 +81,17 @@ def attitude_error_rad(R_est, R_true):
     return rotation_angle(R_est @ R_true.T)
 
 
+def attitude_error_axes_rad(R_est, R_true):
+    """Body-frame rotation vector of the attitude error (rad): components
+    x, y are cross-boresight, z is about the boresight (roll)."""
+    E = R_est @ R_true.T
+    theta = rotation_angle(E)
+    w = np.array([E[2, 1] - E[1, 2], E[0, 2] - E[2, 0], E[1, 0] - E[0, 1]])
+    if theta < 1e-12:
+        return 0.5 * w
+    return w * theta / (2.0 * np.sin(theta))
+
+
 def boresight_inertial(R):
     """Inertial direction of the camera boresight (+z body)."""
     return R.T @ np.array([0.0, 0.0, 1.0])
@@ -104,8 +115,14 @@ class Camera:
         self.height = height
         self.fov_deg = fov_deg
         self.f = width / (2.0 * np.tan(np.radians(fov_deg) / 2.0))
-        self.cx = width / 2.0
-        self.cy = height / 2.0
+        # Pixel centres sit at integer coordinates (the convention of
+        # scipy.ndimage.center_of_mass and of the renderer), so the optical
+        # centre of a W-pixel axis is (W - 1) / 2, not W / 2.  The original
+        # W / 2 is invisible in simulation (renderer and solver share it) but
+        # puts a constant 0.5-pixel bias on real images; see
+        # validate_real_images.py.
+        self.cx = (width - 1) / 2.0
+        self.cy = (height - 1) / 2.0
 
     @property
     def diagonal_fov_rad(self):
@@ -164,7 +181,7 @@ class StarCatalog:
                            self.source)
 
     @classmethod
-    def from_hipparcos(cls, mag_limit=7.0, cache="hipparcos_mag7.csv"):
+    def from_hipparcos(cls, mag_limit=7.0, cache="hipparcos_mag7.csv", epoch=None):
         """
         Load the Hipparcos catalogue (ESA 1997, CDS catalogue I/239).
         Order of attempts:
@@ -192,17 +209,34 @@ class StarCatalog:
                 df = pd.DataFrame({"hip": h.index.to_numpy(),
                                    "ra": h["ra_degrees"].to_numpy(),
                                    "dec": h["dec_degrees"].to_numpy(),
-                                   "mag": h["magnitude"].to_numpy()})
+                                   "mag": h["magnitude"].to_numpy(),
+                                   "pm_ra": h["ra_mas_per_year"].to_numpy(),
+                                   "pm_dec": h["dec_mas_per_year"].to_numpy()})
                 df = df[df["mag"] <= 7.0]
                 print("Hipparcos loaded via Skyfield / CDS.")
             except Exception as e:
-                print(f"CDS download failed ({type(e).__name__}); trying VizieR mirrors...")
-                df = _hipparcos_from_vizier(mag_limit=7.0)
+                print(f"CDS download failed ({type(e).__name__}); trying NASA HEASARC...")
+                try:
+                    df = _hipparcos_from_heasarc(mag_limit=7.0)
+                except Exception as e2:
+                    print(f"HEASARC failed ({type(e2).__name__}); trying VizieR mirrors...")
+                    df = _hipparcos_from_vizier(mag_limit=7.0)
             df.to_csv(cache, index=False)
             print(f"Saved {len(df)} stars to {cache}; later runs will use this file.")
 
         df = df[df["mag"] <= mag_limit]
-        vecs = radec_to_vec(df["ra"].to_numpy(), df["dec"].to_numpy())
+        ra, dec = df["ra"].to_numpy(), df["dec"].to_numpy()
+        if epoch is not None:
+            if "pm_ra" not in df:
+                raise ValueError("Cache has no proper motions; delete it and re-download.")
+            # Linear proper-motion propagation from the Hipparcos epoch J1991.25.
+            # pm_ra is mu_alpha* = mu_alpha cos(dec), in mas/yr.
+            dt = epoch - 1991.25
+            pmra = np.nan_to_num(df["pm_ra"].to_numpy())
+            pmde = np.nan_to_num(df["pm_dec"].to_numpy())
+            dec = dec + pmde * dt / 3.6e6
+            ra = ra + pmra * dt / 3.6e6 / np.cos(np.radians(dec))
+        vecs = radec_to_vec(ra, dec)
         return cls(df["hip"].to_numpy(), vecs, df["mag"].to_numpy(),
                    source="Hipparcos")
 
@@ -217,6 +251,43 @@ class StarCatalog:
         mags = np.clip(mags, -1.5, mag_limit)
         return cls(np.arange(1, n + 1), v, mags, source="synthetic (test only)")
 
+
+
+HEASARC_HIP_URL = ("https://heasarc.gsfc.nasa.gov/FTP/heasarc/dbase/tdat_files/"
+                   "heasarc_hipparcos.tdat.gz")
+
+
+def _hipparcos_from_heasarc(mag_limit=7.0, url=HEASARC_HIP_URL):
+    """Hipparcos main catalogue (ESA 1997) from NASA HEASARC, with proper motions.
+    Positions are ICRS at epoch J1991.25; pm_ra is mu_alpha* in mas/yr."""
+    import gzip
+    import io
+    import urllib.request
+    import pandas as pd
+    print("  downloading Hipparcos from NASA HEASARC ...")
+    raw = urllib.request.urlopen(url, timeout=300).read()
+    rows, in_data = [], False
+    for line in io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(raw)), encoding="latin-1"):
+        if line.startswith("<DATA>"):
+            in_data = True
+            continue
+        if not in_data or line.startswith("<END>"):
+            continue
+        p = line.split("|")
+        try:
+            hip, ra, dec, mag = int(p[5]), float(p[1]), float(p[2]), float(p[7])
+        except (ValueError, IndexError):
+            continue
+        if mag > mag_limit:
+            continue
+        pmra = float(p[14]) if p[14] else np.nan
+        pmde = float(p[15]) if p[15] else np.nan
+        rows.append((hip, ra, dec, mag, pmra, pmde))
+    df = pd.DataFrame(rows, columns=["hip", "ra", "dec", "mag", "pm_ra", "pm_dec"])
+    if len(df) < 1000:
+        raise RuntimeError(f"only {len(df)} stars parsed")
+    print(f"  Hipparcos loaded from HEASARC ({len(df)} stars).")
+    return df
 
 
 def _hipparcos_from_vizier(mag_limit=7.0):
@@ -541,8 +612,13 @@ def run_mekf(catalog, cam, rng, duration_s=3600.0, dt=0.1, star_dt=1.0,
              n_stars=6, sigma_star_rad=np.radians(10 / 3600),
              sigma_v=np.sqrt(10) * 1e-7, sigma_u=np.sqrt(10) * 1e-10,
              bias0_deg_h=1.0, rate_deg_s=0.1, init_err_deg=0.5,
-             log_every_s=1.0, star_outage=None, gyro_only_init_err_rad=None):
+             log_every_s=1.0, star_outage=None, gyro_only_init_err_rad=None,
+             star_bias_sigma_rad=(0.0, 0.0, 0.0)):
     """
+    star_bias_sigma_rad: 1-sigma of a constant star-tracker attitude bias
+    (body x, y cross-boresight; z roll), drawn once per run.  It stands for
+    the bias + low-spatial-frequency error that real trackers specify and
+    that, unlike white noise, does not average out.
     Simulates truth, a gyro and a star tracker, and runs:
       - gyro-only propagation (baseline)
       - MEKF fusing gyro + star vectors
@@ -566,6 +642,7 @@ def run_mekf(catalog, cam, rng, duration_s=3600.0, dt=0.1, star_dt=1.0,
     g_dir = rng.normal(size=3)
     R_go = rotm(-gyro_only_init_err_rad * g_dir / np.linalg.norm(g_dir)) @ R_true
     beta_hat = np.zeros(3)
+    R_bias = rotm(np.asarray(star_bias_sigma_rad) * rng.normal(size=3))
     P = np.diag([(init_err_deg * deg) ** 2] * 3
                 + [(2 * bias0_deg_h * deg / 3600.0) ** 2] * 3)
 
@@ -576,7 +653,7 @@ def run_mekf(catalog, cam, rng, duration_s=3600.0, dt=0.1, star_dt=1.0,
     I6 = np.eye(6)
 
     log = {"t": [], "err_mekf": [], "err_gyro": [], "sigma3": [],
-           "bias_true": [], "bias_hat": []}
+           "bias_true": [], "bias_hat": [], "nees": []}
 
     for k in range(1, n_steps + 1):
         t = k * dt
@@ -603,7 +680,7 @@ def run_mekf(catalog, cam, rng, duration_s=3600.0, dt=0.1, star_dt=1.0,
             if len(vis) >= 2:
                 H, z, Rm = [], [], []
                 for s in vis:
-                    b_meas = body[s] + sigma_star_rad * rng.normal(size=3)
+                    b_meas = R_bias @ body[s] + sigma_star_rad * rng.normal(size=3)
                     b_meas /= np.linalg.norm(b_meas)
                     b_hat = R_hat @ catalog.vecs[s]
                     Hs = np.zeros((3, 6))
@@ -627,6 +704,8 @@ def run_mekf(catalog, cam, rng, duration_s=3600.0, dt=0.1, star_dt=1.0,
             log["err_mekf"].append(attitude_error_rad(R_hat, R_true))
             log["err_gyro"].append(attitude_error_rad(R_go, R_true))
             log["sigma3"].append(3 * np.sqrt(np.trace(P[:3, :3])))
+            d = attitude_error_axes_rad(R_true, R_hat)     # true = exp(-[d x]) R_hat convention
+            log["nees"].append(float(d @ np.linalg.solve(P[:3, :3], d)))
             log["bias_true"].append(bias.copy())
             log["bias_hat"].append(beta_hat.copy())
 

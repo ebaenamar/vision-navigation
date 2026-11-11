@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 
 from vision_core import (Camera, StarCatalog, StarIdentifier, LegacyPipeline,
                          render_star_image, detect_stars, random_rotation,
-                         attitude_error_rad, angle_between_rad,
+                         attitude_error_rad, attitude_error_axes_rad, angle_between_rad,
                          boresight_inertial, run_mekf)
 
 ARCSEC = np.degrees(1.0) * 3600.0        # rad -> arcsec
@@ -54,7 +54,23 @@ def parse_args():
 # Experiment 1: star identification and single-frame attitude
 # ---------------------------------------------------------------------------
 
-def run_condition(name, cat, cam, ident, legacy, rng, frames, read_noise, n_false):
+def id_error_count(out, xy, truth, max_px=2.0):
+    """Number of identified detections that do NOT lie within max_px of a
+    rendered catalogue star with the same Hipparcos number (false objects,
+    blends and swapped identities all count as wrong)."""
+    tx, ty, tid = np.asarray(truth["x"]), np.asarray(truth["y"]), np.asarray(truth["ids"])
+    wrong = 0
+    for d, hip in zip(out["det_idx"], out["cat_ids"]):
+        dist = np.hypot(tx - xy[d, 0], ty - xy[d, 1])
+        k = int(np.argmin(dist)) if dist.size else -1
+        if k < 0 or dist[k] > max_px or tid[k] != hip:
+            wrong += 1
+    return wrong
+
+
+def run_condition(name, cat, cam, ident, legacy, rng, frames, read_noise, n_false,
+                  id_kwargs=None):
+    id_kwargs = id_kwargs or {}
     rows = []
     for _ in range(frames):
         R_true = random_rotation(rng)
@@ -64,17 +80,21 @@ def run_condition(name, cat, cam, ident, legacy, rng, frames, read_noise, n_fals
         bs_true = boresight_inertial(R_true)
 
         t0 = time.perf_counter()
-        out = ident.identify(xy)
+        out = ident.identify(xy, **id_kwargs)
         t_new = time.perf_counter() - t0
         if out is not None:
             att = attitude_error_rad(out["R"], R_true)
+            axes = attitude_error_axes_rad(out["R"], R_true)
             bor = angle_between_rad(boresight_inertial(out["R"]), bs_true)
             n_used = len(out["det_idx"])
             res = out["residuals_rad"]
+            n_wrong = id_error_count(out, xy, truth)
         else:
             att = bor = np.nan
+            axes = np.full(3, np.nan)
             n_used = 0
             res = np.array([])
+            n_wrong = 0
 
         t0 = time.perf_counter()
         bs_old = legacy.solve(xy)
@@ -83,7 +103,8 @@ def run_condition(name, cat, cam, ident, legacy, rng, frames, read_noise, n_fals
 
         rows.append({"n_detected": len(xy), "n_used": n_used, "att": att, "bor": bor,
                      "bor_old": bor_old, "t_new": t_new, "t_old": t_old,
-                     "residuals": res})
+                     "residuals": res, "axes": axes, "n_wrong": n_wrong,
+                     "solved": out is not None})
     return summarise(name, rows, read_noise, n_false)
 
 
@@ -93,9 +114,20 @@ def summarise(name, rows, read_noise, n_false):
     att = np.array([r["att"] for r in rows])
     bor = np.array([r["bor"] for r in rows])
     bor_old = np.array([r["bor_old"] for r in rows])
+    solved = np.array([r["solved"] for r in rows])
+    axes = np.array([r["axes"] for r in rows])
     good = ok(bor)
+    n_wrong = sum(r["n_wrong"] for r, g in zip(rows, good) if g)
+    n_ids = sum(r["n_used"] for r, g in zip(rows, good) if g)
     res = np.concatenate([r["residuals"] for r, g in zip(rows, good) if g] or [np.array([])])
+    # Per-axis 1-sigma (RMS) over successful frames.
+    ax_ok = axes[good] * ARCSEC
     return {
+        "gross_wrong_solution_pct": float(100 * (solved & ~good).mean()),
+        "no_solution_pct": float(100 * (~solved).mean()),
+        "star_misid_pct": float(100 * n_wrong / n_ids) if n_ids else None,
+        "rms_cross_boresight_arcsec": float(np.sqrt(np.mean(ax_ok[:, :2] ** 2))) if good.any() else None,
+        "rms_roll_arcsec": float(np.sqrt(np.mean(ax_ok[:, 2] ** 2))) if good.any() else None,
         "condition": name, "read_noise": read_noise, "false_objects": n_false,
         "frames": len(rows),
         "mean_detected": float(np.mean([r["n_detected"] for r in rows])),
@@ -236,8 +268,12 @@ def main():
 
     # ---- Experiment 1
     print("Experiment 1: star identification...")
-    conds = [("Nominal noise", 2.0, 0), ("High noise", 8.0, 0), ("Nominal + 5 false objects", 2.0, 5)]
-    table2 = [run_condition(n, full, cam, ident, legacy, rng, a.frames, rn, nf) for n, rn, nf in conds]
+    wide = {"max_stars": 12, "max_triplets": 220}     # all triplets of the 12 brightest
+    conds = [("Nominal noise", 2.0, 0, None), ("High noise", 8.0, 0, None),
+             ("Nominal + 5 false objects", 2.0, 5, None),
+             ("Nominal + 5 false objects, 12-star search", 2.0, 5, wide)]
+    table2 = [run_condition(n, full, cam, ident, legacy, rng, a.frames, rn, nf, kw)
+              for n, rn, nf, kw in conds]
     for row in table2:
         print("  ", row["condition"], f"success {row['success_new_pct']:.1f}% (original {row['success_old_pct']:.1f}%)")
 
@@ -283,6 +319,49 @@ def main():
         "outage_max_err_mekf_median_arcsec": float(np.median(maxes_outage) * ARCSEC),
     }
 
+    # ---- Experiment 2b: realistic sensors (added in review revision)
+    # Gyro: ADIS16448 MEMS IMU noise as calibrated for the real EuRoC MAV
+    # dataset (Burri et al., IJRR 2016; Kalibr imu.yaml): gyroscope noise
+    # density 1.6968e-4 rad/s/sqrt(Hz), bias random walk 1.9393e-5 rad/s^2/sqrt(Hz).
+    # Initial bias 14.5 deg/h = ADIS16448 datasheet in-run bias stability.
+    # Star tracker bias: constant per run, 3 arcsec cross-boresight and 15 arcsec
+    # roll (1 sigma), the order of the bias + LSFE terms in small-satellite
+    # tracker datasheets (e.g. Sodern Hydra, BCT NST).
+    deg = np.pi / 180
+    scen = [
+        ("Paper gyro (textbook FOG-grade), white star noise", {}),
+        ("Paper gyro, body rate 0 (no bias averaging)", {"rate_deg_s": 0.0}),
+        ("MEMS gyro (EuRoC ADIS16448), white star noise",
+         {"sigma_v": 1.6968e-4, "sigma_u": 1.9393e-5, "bias0_deg_h": 14.5}),
+        ("MEMS gyro + star-tracker bias (3/3/15 arcsec)",
+         {"sigma_v": 1.6968e-4, "sigma_u": 1.9393e-5, "bias0_deg_h": 14.5,
+          "star_bias_sigma_rad": (3 / 3600 * deg, 3 / 3600 * deg, 15 / 3600 * deg)}),
+    ]
+    table3b = []
+    for name, kw in scen:
+        fin, fgo, mout, nees = [], [], [], []
+        for m in range(a.mc_runs):
+            L2 = run_mekf(bright, cam, rng, duration_s=a.duration, sigma_star_rad=sigma_star, **kw)
+            Lo2 = run_mekf(bright, cam, rng, duration_s=a.duration, sigma_star_rad=sigma_star,
+                           star_outage=outage, **kw)
+            fin.append(L2["err_mekf"][-1]); fgo.append(L2["err_gyro"][-1])
+            win = (Lo2["t"] >= outage[0]) & (Lo2["t"] < outage[1])
+            mout.append(Lo2["err_mekf"][win].max())
+            nees.append(L2["nees"][L2["t"] > 600])
+        nees = np.array(nees)                     # (runs, samples)
+        anees = float(np.mean(nees))              # average NEES, 3 dof expected
+        from scipy.stats import chi2
+        n = a.mc_runs
+        lo, hi = chi2.ppf(0.025, 3 * n) / n, chi2.ppf(0.975, 3 * n) / n
+        inside = float(100 * np.mean((nees.mean(axis=0) >= lo) & (nees.mean(axis=0) <= hi)))
+        table3b.append({"scenario": name,
+                        "final_err_median_arcsec": float(np.median(fin) * ARCSEC),
+                        "gyro_only_final_median_arcsec": float(np.median(fgo) * ARCSEC),
+                        "outage_max_median_arcsec": float(np.median(mout) * ARCSEC),
+                        "anees": anees, "nees_bounds": (float(lo), float(hi)),
+                        "pct_time_nees_in_bounds": inside})
+        print("  ", name, table3b[-1])
+
     # ---- Figures
     print("Figures...")
     fig_star_field(full, cam, ident, rng, os.path.join(a.out, "fig2_star_field.png"))
@@ -292,7 +371,7 @@ def main():
     fig_sweep(sweep, os.path.join(a.out, "fig5_noise_sweep.png"))
 
     # ---- Write results
-    summary = {"parameters": params, "table2": table2, "noise_sweep": sweep, "table3": table3,
+    summary = {"parameters": params, "table2": table2, "noise_sweep": sweep, "table3": table3, "table3b": table3b,
                "run_date": time.strftime("%Y-%m-%d %H:%M"), "quick": a.quick}
     with open(os.path.join(a.out, "summary.json"), "w") as f:
         json.dump(summary, f, indent=2, default=float)
@@ -319,6 +398,14 @@ def main():
                  f"{fmt(r['time_new_ms_median'])} |")
     L.append(f"\nSuccess = boresight error below {SUCCESS_DEG}°. Per-star residual RMS (nominal): "
              f"{fmt(table2[0]['star_residual_rms_arcsec'])} arcsec.")
+    L.append("\n## Table 2b. Identification scored on catalogue IDs, per-axis accuracy (1σ RMS)\n")
+    L.append("| Condition | Success (%) | Gross wrong solution (%) | No solution (%) | Misidentified stars in successful frames (%) | Cross-boresight 1σ (arcsec) | Roll 1σ (arcsec) | Time/frame (ms) |")
+    L.append("| --- | --- | --- | --- | --- | --- | --- | --- |")
+    for r in table2:
+        L.append(f"| {r['condition']} | {fmt(r['success_new_pct'])} | {fmt(r['gross_wrong_solution_pct'])} | "
+                 f"{fmt(r['no_solution_pct'])} | {fmt(r['star_misid_pct'], 2)} | "
+                 f"{fmt(r['rms_cross_boresight_arcsec'])} | "
+                 f"{fmt(r['rms_roll_arcsec'])} | {fmt(r['time_new_ms_median'])} |")
 
     L.append("\n## Table 3. Filter performance (medians over runs)\n")
     L.append("| Method | Final attitude error (arcsec) | Max error during star outage (arcsec) | Final bias error (deg/h) |")
@@ -326,6 +413,14 @@ def main():
     L.append(f"| Gyro only (from one star fix) | {fmt(table3['final_err_gyro_median_arcsec'])} | – | – |")
     L.append(f"| MEKF with star updates | {fmt(table3['final_err_mekf_median_arcsec'], 2)} | {fmt(table3['outage_max_err_mekf_median_arcsec'])} | {fmt(table3['final_bias_err_median_deg_h'], 4)} |")
     L.append(f"\nMEKF error inside its 3σ bound {fmt(table3['pct_time_within_3sigma'])}% of the time after the first 10 minutes.")
+
+    L.append("\n## Table 3b. Filter with realistic sensors (medians over runs; NEES after 10 min)\n")
+    L.append("| Scenario | Final attitude error (arcsec) | Gyro-only final (arcsec) | Max error in 10-min outage (arcsec) | Average NEES (3 = consistent) | 95% NEES bounds | Time with ensemble NEES inside bounds (%) |")
+    L.append("| --- | --- | --- | --- | --- | --- | --- |")
+    for r in table3b:
+        L.append(f"| {r['scenario']} | {fmt(r['final_err_median_arcsec'], 2)} | {fmt(r['gyro_only_final_median_arcsec'])} | "
+                 f"{fmt(r['outage_max_median_arcsec'])} | {fmt(r['anees'], 2)} | "
+                 f"{r['nees_bounds'][0]:.2f}–{r['nees_bounds'][1]:.2f} | {fmt(r['pct_time_nees_in_bounds'])} |")
 
     L.append("\n## Noise sweep (Figure 5)\n")
     L.append("| Read noise | Success corrected (%) | Success early draft (%) | Median attitude error (arcsec) |")

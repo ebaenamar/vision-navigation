@@ -1,10 +1,15 @@
-numpy
-scipy
-matplotlib
-pandas
-skyfield
-astroquery
-tqdm
-opencv-python
-torch
-lightglue @ git+https://github.com/cvg/LightGlue.git
+# Versions used for the results in results/ (Python 3.12).
+numpy==2.5.4
+scipy==1.18.1
+matplotlib==3.11.2
+pandas==3.1.1
+skyfield==1.55
+astroquery==0.4.11
+tqdm==4.70.1
+opencv-python==5.0.0.93
+torch==2.15.0
+pillow==13.0.0
+rasterio==1.5.2
+gdown==6.5.1
+lightglue @ git+https://github.com/cvg/LightGlue.git@5a650c444718caffc2669dc0094cde908f42dd73
+tetra3 @ git+https://github.com/esa/tetra3.git@f9fa2eb9a32a5efc529e2d86f0b59f35b1e9028d
